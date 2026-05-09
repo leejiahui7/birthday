@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Birthday Wishes Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Karla:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f4ee;--ink:#1a1612;--muted:#8a8070;--border:#d8d0c4;--radius:10px;
+  --font-head:'Syne',sans-serif;--font-body:'Karla',sans-serif;
+}
+body{font-family:var(--font-body);background:var(--bg);color:var(--ink);min-height:100vh;padding:48px 20px 80px;display:flex;justify-content:center;}
+.page{width:100%;max-width:640px;}
+.hero{text-align:center;margin-bottom:44px;}
+.hero-tag{display:inline-block;font-family:var(--font-head);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:5px 14px;border-radius:999px;margin-bottom:18px;}
+.hero h1{font-family:var(--font-head);font-size:clamp(30px,6vw,48px);font-weight:800;line-height:1.05;letter-spacing:-1.5px;margin-bottom:10px;}
+.hero p{font-size:14px;color:var(--muted);font-weight:300;line-height:1.65;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+@media(max-width:460px){.form-row{grid-template-columns:1fr;}}
+.field label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:6px;}
+.field input{width:100%;padding:11px 14px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:14px;color:var(--ink);outline:none;transition:border-color .18s;}
+.field input:focus{border-color:#999;}
+.field input::placeholder{color:#b0a898;}
+.tabs-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:10px;}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;}
+.tab{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:#fff;font-family:var(--font-body);font-size:13px;color:var(--muted);cursor:pointer;transition:all .18s;white-space:nowrap;}
+.tab:hover{border-color:#aaa;color:var(--ink);}
+.tab[data-tab="warm"].active    {background:#fff5e6;border-color:#f5a623;color:#b07010;}
+.tab[data-tab="genuine"].active {background:#eef4ee;border-color:#5a9060;color:#2e6035;}
+.tab[data-tab="funny"].active   {background:#fff0f5;border-color:#e05090;color:#a0205a;}
+.tab[data-tab="geeky"].active   {background:#eef0ff;border-color:#5060d0;color:#2030a0;}
+.tab[data-tab="joyful"].active  {background:#fffbe6;border-color:#d4a820;color:#8a6a00;}
+.tab[data-tab="bold"].active    {background:#f5eeff;border-color:#8840d0;color:#5010a0;}
+.tab[data-tab="boring"].active  {background:#f0f0ee;border-color:#888;color:#333;}
+.gen-btn{width:100%;padding:15px;background:var(--ink);color:var(--bg);border:none;border-radius:var(--radius);font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:opacity .18s,transform .12s;margin-bottom:28px;}
+.gen-btn:hover{opacity:.85;}
+.gen-btn:active{transform:scale(.99);}
+.gen-btn:disabled{opacity:.4;cursor:not-allowed;}
+.output{background:#fff;border:1px solid var(--border);border-radius:14px;padding:28px;display:none;}
+.output.show{display:block;animation:fadeUp .3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.tone-chip{display:inline-block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;padding:4px 12px;border-radius:999px;margin-bottom:16px;}
+.chip-warm    {background:#fff5e6;color:#b07010;}
+.chip-genuine {background:#eef4ee;color:#2e6035;}
+.chip-funny   {background:#fff0f5;color:#a0205a;}
+.chip-geeky   {background:#eef0ff;color:#2030a0;}
+.chip-joyful  {background:#fffbe6;color:#8a6a00;}
+.chip-bold    {background:#f5eeff;color:#5010a0;}
+.chip-boring  {background:#f0f0ee;color:#333;}
+.skeleton{display:flex;flex-direction:column;gap:10px;}
+.sk{height:14px;border-radius:6px;background:#ede8e0;animation:pulse 1.3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.85}}
+.wish-text{font-size:15px;line-height:1.82;color:#2a2420;font-weight:300;}
+.wish-text p{margin-bottom:6px;}
+.wish-text p:last-child{margin-bottom:0;}
+.output-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:14px;margin-top:20px;flex-wrap:wrap;gap:10px;}
+.word-count{font-size:12px;color:#b0a898;}
+.copy-btn{padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;font-family:var(--font-body);font-size:12.5px;color:var(--muted);cursor:pointer;transition:all .18s;}
+.copy-btn:hover{border-color:#aaa;color:var(--ink);}
+.copy-btn.copied{border-color:#5a9060;color:#2e6035;background:#eef4ee;}
+.hint{text-align:center;font-size:12.5px;color:#b0a898;font-style:italic;margin-top:16px;display:none;}
+.error-msg{color:#a03030;font-size:14px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-tag">Birthday Wishes Generator</div>
+    <h1>Say it perfectly.<br>Every time.</h1>
+    <p>Enter names, pick a vibe, and we'll write the words.</p>
+  </div>
+
+  <div class="form-row">
+    <div class="field"><label>Their name</label><input type="text" id="theirName" placeholder="e.g. Jamie" maxlength="40"/></div>
+    <div class="field"><label>Your name</label><input type="text" id="myName" placeholder="e.g. Alex" maxlength="40"/></div>
+  </div>
+
+  <p class="tabs-label">Pick a vibe</p>
+  <div class="tabs">
+    <button class="tab active" data-tab="warm">🌼 Warm &amp; Friendly</button>
+    <button class="tab" data-tab="genuine">🌿 Genuine &amp; Grounded</button>
+    <button class="tab" data-tab="funny">🔥 Funny &amp; Unhinged</button>
+    <button class="tab" data-tab="geeky">🤖 Geeky &amp; Nerdy</button>
+    <button class="tab" data-tab="joyful">✨ Joyful &amp; Optimistic</button>
+    <button class="tab" data-tab="bold">⚡ Bold &amp; Progressive</button>
+    <button class="tab" data-tab="boring">📋 Boring &amp; Boss-like</button>
+  </div>
+
+  <button class="gen-btn" id="genBtn">Generate birthday wish</button>
+
+  <div class="output" id="output">
+    <div class="skeleton" id="skeleton">
+      <div class="sk" style="width:80%"></div>
+      <div class="sk" style="width:60%"></div>
+      <div class="sk" style="width:72%"></div>
+    </div>
+    <div id="result" style="display:none">
+      <div class="tone-chip" id="toneChip"></div>
+      <div class="wish-text" id="wishText"></div>
+      <div class="output-footer">
+        <span class="word-count" id="wordCount"></span>
+        <button class="copy-btn" id="copyBtn">Copy to clipboard</button>
+      </div>
+    </div>
+  </div>
+  <p class="hint" id="hint">Generate again for a fresh version — every wish is written from scratch.</p>
+
+</div>
+<script>
+// ▼▼▼ PASTE YOUR CLOUDFLARE WORKER URL HERE ▼▼▼
+const WORKER_URL = "https://birthday.leejiahui7.workers.dev";
+// ▲▲▲ e.g. "https://birthday-wishes.jiahui.workers.dev" ▲▲▲
+
+const TONES = {
+  warm:    {label:"Warm & Friendly",     chip:"chip-warm",    desc:"warm, heartfelt, and genuinely friendly. Like a hug in words. Affectionate without being over the top."},
+  genuine: {label:"Genuine & Grounded",  chip:"chip-genuine", desc:"real, honest, grounded. No fluff. The kind that actually means something because it feels true."},
+  funny:   {label:"Funny & Unhinged",    chip:"chip-funny",   desc:"absolutely unhinged and hilarious. Wild comparisons, absurd logic, chaotic energy. Make it land."},
+  geeky:   {label:"Geeky & Nerdy",       chip:"chip-geeky",   desc:"deeply nerdy. Use references from science, tech, gaming, sci-fi, or maths. Clever wordplay encouraged."},
+  joyful:  {label:"Joyful & Optimistic", chip:"chip-joyful",  desc:"bursting with joy and genuine optimism. Celebratory, bright, full of excitement. Radiates good energy."},
+  bold:    {label:"Bold & Progressive",  chip:"chip-bold",    desc:"bold and forward-thinking. Celebrates growth and ambition. Sounds like a manifesto but make it personal."},
+  boring:  {label:"Boring & Boss-like",  chip:"chip-boring",  desc:"exactly like a corporate manager writing in a work Slack. Dry, formal, vaguely complimentary. Accidentally funny through sheer blandness."},
+};
+
+let activeTab = "warm";
+
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeTab = btn.dataset.tab;
+  });
+});
+
+document.getElementById("genBtn").addEventListener("click", generate);
+document.getElementById("copyBtn").addEventListener("click", () => {
+  const text = Array.from(document.querySelectorAll(".wish-text p")).map(p => p.textContent).join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    const cb = document.getElementById("copyBtn");
+    cb.textContent = "✓ Copied!";
+    cb.classList.add("copied");
+    setTimeout(() => { cb.textContent = "Copy to clipboard"; cb.classList.remove("copied"); }, 2500);
+  });
+});
+
+async function generate() {
+  const theirName = document.getElementById("theirName").value.trim() || "them";
+  const myName    = document.getElementById("myName").value.trim()    || "me";
+  const cfg       = TONES[activeTab];
+  const btn       = document.getElementById("genBtn");
+  const output    = document.getElementById("output");
+  const skeleton  = document.getElementById("skeleton");
+  const result    = document.getElementById("result");
+  const hint      = document.getElementById("hint");
+
+  btn.disabled = true;
+  let d = 1;
+  const dotTimer = setInterval(() => { d = d >= 3 ? 1 : d + 1; btn.textContent = "Writing" + ".".repeat(d); }, 400);
+
+  output.classList.add("show");
+  skeleton.style.display = "flex";
+  result.style.display   = "none";
+  hint.style.display     = "none";
+
+  const prompt = `Write a birthday wish from ${myName} to ${theirName}.
+
+Tone: ${cfg.desc}
+
+Rules:
+- MAXIMUM 3 sentences total. Short, punchy, memorable.
+- Do NOT open with "Happy Birthday" as the first two words — be more creative
+- Address ${theirName} directly
+- Sign off from ${myName} on a new line at the end
+- No hashtags, no em-dashes
+- Just the message — no preamble, no surrounding quotes
+- Fully commit to the ${cfg.label} tone`;
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    if (!res.ok) throw new Error(`Worker error ${res.status}`);
+    const data = await res.json();
+    const text = (data.text || "").trim();
+    if (!text) throw new Error("Empty response — check your Worker logs");
+
+    clearInterval(dotTimer);
+    skeleton.style.display = "none";
+
+    const chip = document.getElementById("toneChip");
+    chip.textContent = cfg.label;
+    chip.className   = "tone-chip " + cfg.chip;
+
+    const wishDiv = document.getElementById("wishText");
+    wishDiv.innerHTML = "";
+    text.split("\n").forEach(line => {
+      if (!line.trim()) return;
+      const p = document.createElement("p");
+      p.textContent = line;
+      wishDiv.appendChild(p);
+    });
+
+    const words = text.split(/\s+/).filter(Boolean).length;
+    document.getElementById("wordCount").textContent = words + " words";
+
+    result.style.display = "block";
+    hint.style.display   = "block";
+    btn.textContent = "Generate again";
+    btn.disabled    = false;
+
+  } catch(e) {
+    clearInterval(dotTimer);
+    skeleton.style.display = "none";
+    const wishDiv = document.getElementById("wishText");
+    wishDiv.innerHTML = `<p class="error-msg">Error: ${e.message}</p>`;
+    result.style.display = "block";
+    btn.textContent = "Try again";
+    btn.disabled    = false;
+  }
+}
+</script>
+</body>
+</html>
